@@ -1,0 +1,9 @@
+numpy
+pandas
+networkx
+node2vec
+implicit
+faiss-cpu
+scikit-learn
+tqdm
+scipy
