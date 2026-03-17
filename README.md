@@ -13,6 +13,18 @@ The system combines:
 
 The goal is to recommend similar real estate listings based on user behavior signals.
 
+## Running the Project
+
+git clone https://github.com/AleynaAltunsu/graph-behavioral-recommender
+
+cd graph-behavioral-recommender
+
+pip install -r requirements.txt
+
+python src/recommender.py
+
+
+recommend(seed_item_id="12345", topk=10)
 ---
 
 # Problem
