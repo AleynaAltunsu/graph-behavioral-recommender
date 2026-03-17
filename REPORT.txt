@@ -1,122 +1,129 @@
-*Graph-Based Behavioral Recommendation System*
-Comparative Study: LLM vs Non-LLM Approaches
+## Graph-Based Behavioral Recommendation System
 
-This project presents a comparative study between LLM-supported semantic recommendation methods and purely behavioral graph-based recommendation approaches. The goal is to analyze how large language models contribute to recommendation quality while maintaining scalability and interpretability in production environments.
+### Comparative Study: LLM vs Non-LLM Approaches
 
-The system was developed using real user interaction data (e.g., views, clicks, transitions), focusing on the modeling of behavioral signals rather than relying solely on textual or semantic understanding.
+This project presents a **comparative study between LLM-supported semantic recommendation methods and purely behavioral graph-based recommendation approaches**. The goal is to analyze how large language models contribute to recommendation quality while maintaining scalability and interpretability in production environments.
 
-Problem Statement
+The system was developed using **real user interaction data** (e.g., views, clicks, transitions), focusing on the modeling of behavioral signals rather than relying solely on textual or semantic understanding.
 
-Many modern recommendation systems incorporate Large Language Models (LLMs) to perform semantic matching between items. While LLM-based approaches can capture contextual and textual relationships, they often introduce several challenges:
+---
 
-high computational cost
+# Problem Statement
 
-latency issues in production systems
+Many modern recommendation systems incorporate **Large Language Models (LLMs)** to perform semantic matching between items. While LLM-based approaches can capture contextual and textual relationships, they often introduce several challenges:
 
-scalability limitations for large item catalogs
+* high computational cost
+* latency issues in production systems
+* scalability limitations for large item catalogs
+* reduced interpretability of recommendation signals
 
-reduced interpretability of recommendation signals
+In contrast, **behavioral recommender systems** rely directly on user interaction patterns and therefore provide stronger signals of user intent.
 
-In contrast, behavioral recommender systems rely directly on user interaction patterns and therefore provide stronger signals of user intent.
+This project investigates whether **graph-based behavioral modeling can provide competitive recommendation quality without requiring LLM-based semantic inference**.
 
-This project investigates whether graph-based behavioral modeling can provide competitive recommendation quality without requiring LLM-based semantic inference.
+---
 
-Dataset and Behavioral Signals
+# Dataset and Behavioral Signals
 
 The system is built on user interaction logs containing the following event types:
 
-Event Type	Meaning
-view	User viewed a listing
-click	User clicked or opened the listing
-transition	User navigated to the listing from another page
+| Event Type | Meaning                                         |
+| ---------- | ----------------------------------------------- |
+| view       | User viewed a listing                           |
+| click      | User clicked or opened the listing              |
+| transition | User navigated to the listing from another page |
 
-These events represent implicit feedback, which is commonly used in real-world recommendation systems.
+These events represent **implicit feedback**, which is commonly used in real-world recommendation systems.
 
 To reflect different levels of behavioral intent, events are weighted:
 
-Event	Weight
-view	1
-click	2
-favorite / strong interaction	4
-conversion / high intent	6
+| Event                         | Weight |
+| ----------------------------- | ------ |
+| view                          | 1      |
+| click                         | 2      |
+| favorite / strong interaction | 4      |
+| conversion / high intent      | 6      |
 
-These weights allow the system to capture behavioral strength and user engagement intensity.
+These weights allow the system to capture **behavioral strength and user engagement intensity**.
 
-Graph-Based Behavioral Modeling
+---
 
-User-item interactions are modeled as a bipartite graph:
+# Graph-Based Behavioral Modeling
+
+User-item interactions are modeled as a **bipartite graph**:
 
 Users ↔ Items
 
 In this structure:
 
-nodes represent users and items
-
-edges represent interactions
-
-edge weights represent behavioral intensity
+* nodes represent users and items
+* edges represent interactions
+* edge weights represent behavioral intensity
 
 Graph modeling allows the system to capture:
 
-item co-consumption patterns
+* item co-consumption patterns
+* shared user interests
+* structural proximity between listings
 
-shared user interests
+---
 
-structural proximity between listings
+# Node2Vec Representation Learning
 
-Node2Vec Representation Learning
-
-To learn latent representations of nodes in the interaction graph, the project uses Node2Vec, a graph embedding algorithm based on random walks.
+To learn latent representations of nodes in the interaction graph, the project uses **Node2Vec**, a graph embedding algorithm based on random walks.
 
 Node2Vec performs biased random walks through the graph to generate sequences of nodes. These sequences are then used to train a skip-gram model similar to Word2Vec.
 
 This process produces dense vector representations where:
 
-items frequently interacted with by similar users are located closer in embedding space
+* items frequently interacted with by similar users are located closer in embedding space
+* user behavior patterns are encoded into the vector space
 
-user behavior patterns are encoded into the vector space
+The resulting embeddings represent **behavioral similarity between items**.
 
-The resulting embeddings represent behavioral similarity between items.
+---
 
-Collaborative Filtering Layer
+# Collaborative Filtering Layer
 
-In addition to graph embeddings, the system applies implicit collaborative filtering using Alternating Least Squares (ALS).
+In addition to graph embeddings, the system applies **implicit collaborative filtering** using Alternating Least Squares (ALS).
 
 ALS factorizes the user-item interaction matrix into latent factors representing:
 
-user preferences
-
-item characteristics
+* user preferences
+* item characteristics
 
 This matrix factorization layer captures global interaction patterns that may not be fully represented by the graph structure alone.
 
-Hybrid Behavioral Representation
+---
+
+# Hybrid Behavioral Representation
 
 To combine the strengths of both approaches, the final item representation is constructed by concatenating:
 
-Graph embeddings (Node2Vec)
+* Graph embeddings (Node2Vec)
+* Collaborative filtering embeddings (ALS)
 
-Collaborative filtering embeddings (ALS)
-
-This produces a hybrid embedding space where items are represented using both structural and collaborative signals.
+This produces a **hybrid embedding space** where items are represented using both structural and collaborative signals.
 
 The final vector representation enables a more robust similarity measure between listings.
 
-Similarity Search and Retrieval
+---
 
-For efficient nearest-neighbor search in high-dimensional space, the system uses FAISS (Facebook AI Similarity Search).
+# Similarity Search and Retrieval
+
+For efficient nearest-neighbor search in high-dimensional space, the system uses **FAISS (Facebook AI Similarity Search)**.
 
 FAISS allows the system to:
 
-perform fast similarity search
-
-scale to large item catalogs
-
-support real-time recommendation scenarios
+* perform fast similarity search
+* scale to large item catalogs
+* support real-time recommendation scenarios
 
 Given a seed item, the system retrieves the most similar listings based on vector similarity.
 
-Popularity-Aware Ranking
+---
+
+# Popularity-Aware Ranking
 
 To improve ranking robustness, similarity scores are combined with a popularity signal derived from interaction frequency.
 
@@ -126,65 +133,60 @@ score = similarity × log(popularity)
 
 This approach balances:
 
-behavioral similarity
-
-overall item popularity
+* behavioral similarity
+* overall item popularity
 
 and prevents extremely niche items from dominating the recommendation results.
 
-LLM vs Non-LLM Comparison
+---
 
-The project also investigates the potential contribution of LLM-based semantic matching.
+# LLM vs Non-LLM Comparison
+
+The project also investigates the potential contribution of **LLM-based semantic matching**.
 
 LLM approaches typically rely on textual features such as:
 
-listing descriptions
-
-titles
-
-metadata
+* listing descriptions
+* titles
+* metadata
 
 While these models can capture semantic relationships between items, they require:
 
-large computational resources
+* large computational resources
+* complex inference pipelines
+* continuous model updates
 
-complex inference pipelines
+In contrast, the **behavioral graph-based system** presented here offers several advantages:
 
-continuous model updates
-
-In contrast, the behavioral graph-based system presented here offers several advantages:
-
-Scalability
+**Scalability**
 Graph embeddings and collaborative filtering can be computed offline and reused efficiently.
 
-Interpretability
+**Interpretability**
 Recommendations can be traced back to user interaction patterns.
 
-Production Readiness
+**Production Readiness**
 The system can operate with lower latency and reduced infrastructure requirements compared to LLM-based pipelines.
 
-Key Contributions
+---
+
+# Key Contributions
 
 This project demonstrates that:
 
-user interaction graphs can effectively capture behavioral similarity between items
+* user interaction graphs can effectively capture behavioral similarity between items
+* hybrid embedding architectures improve recommendation quality
+* scalable recommendation systems can be built without relying entirely on LLM inference
 
-hybrid embedding architectures improve recommendation quality
+The resulting pipeline provides a **production-friendly behavioral recommendation architecture** that can be integrated into real-world platforms.
 
-scalable recommendation systems can be built without relying entirely on LLM inference
+---
 
-The resulting pipeline provides a production-friendly behavioral recommendation architecture that can be integrated into real-world platforms.
-
-Future Work
+# Future Work
 
 Potential extensions of this work include:
 
-session-based recommendation modeling
-
-temporal interaction weighting
-
-graph neural networks (GraphSAGE, GAT)
-
-hybrid semantic + behavioral architectures
-
-online learning pipelines for real-time personalization
+* session-based recommendation modeling
+* temporal interaction weighting
+* graph neural networks (GraphSAGE, GAT)
+* hybrid semantic + behavioral architectures
+* online learning pipelines for real-time personalization
